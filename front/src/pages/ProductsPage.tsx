@@ -2,6 +2,8 @@
 import { Badge } from "@/components/ui/badge"
 
 import { useState } from "react"
+import { useProducts } from "@/hooks/useProducts"
+import { useCategories } from "@/hooks/useCategories"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,59 +14,9 @@ import type { Product, Category } from "@/lib/types"
 import { useToast } from "@/hooks/useToast"
 import { PlusCircle, Trash2 } from "lucide-react"
 
-// Sample data
-const sampleProducts: Product[] = [
-  {
-    id: "CFCgcPPZKCjBvak9AEL6",
-    name: "Pepperoni Pizza",
-    price: 16.99,
-    ingredients: ["Tomato", "Mozzarella", "Pepperoni"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "2",
-    name: "Margherita Pizza",
-    price: 14.99,
-    ingredients: ["Tomato", "Mozzarella", "Basil"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "3",
-    name: "Vegetarian Pizza",
-    price: 15.99,
-    ingredients: ["Tomato", "Mozzarella", "Bell Peppers", "Mushrooms", "Olives"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "4",
-    name: "Hawaiian Pizza",
-    price: 17.99,
-    ingredients: ["Tomato", "Mozzarella", "Ham", "Pineapple"],
-    category: "Specialty Pizzas",
-  },
-  {
-    id: "5",
-    name: "BBQ Chicken Pizza",
-    price: 18.99,
-    ingredients: ["BBQ Sauce", "Mozzarella", "Chicken", "Red Onion"],
-    category: "Specialty Pizzas",
-  },
-]
-
-const sampleCategories: Category[] = [
-  {
-    id: "1",
-    name: "Traditional Pizzas",
-  },
-  {
-    id: "5H1BpOwgs7ephxCw4PHi",
-    name: "Specialty Pizzas",
-  },
-]
-
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>(sampleProducts)
-  const [categories, setCategories] = useState<Category[]>(sampleCategories)
+  const { products, loading: productsLoading, createProduct } = useProducts()
+  const { categories, loading: categoriesLoading, createCategory } = useCategories()
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: "",
     price: 0,
@@ -75,7 +27,7 @@ export default function ProductsPage() {
   const [ingredientsInput, setIngredientsInput] = useState<string>("")
   const { toast } = useToast()
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.category || !ingredientsInput) {
       toast({
         title: "Missing fields",
@@ -90,31 +42,28 @@ export default function ProductsPage() {
       .map((i) => i.trim())
       .filter((i) => i)
 
-    const productToAdd: Product = {
-      id: Date.now().toString(),
+    const productData = {
       name: newProduct.name,
       price: Number(newProduct.price),
       ingredients,
-      category: newProduct.category,
+      category: newProduct.category
     }
 
-    setProducts([...products, productToAdd])
-    setNewProduct({
-      name: "",
-      price: 0,
-      ingredients: [],
-      category: "",
-    })
-    setIngredientsInput("")
-
-    toast({
-      title: "Product added",
-      description: `${productToAdd.name} has been added to the menu`,
-    })
+    const success = await createProduct(productData)
+    
+    if (success) {
+      setNewProduct({
+        name: "",
+        price: 0,
+        ingredients: [],
+        category: "",
+      })
+      setIngredientsInput("")
+    }
   }
 
-  const handleAddCategory = () => {
-    if (!newCategory) {
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) {
       toast({
         title: "Missing category name",
         description: "Please enter a category name",
@@ -123,37 +72,15 @@ export default function ProductsPage() {
       return
     }
 
-    const categoryExists = categories.some((cat) => cat.name.toLowerCase() === newCategory.toLowerCase())
-
-    if (categoryExists) {
-      toast({
-        title: "Category exists",
-        description: "This category already exists",
-        variant: "destructive",
-      })
-      return
+    console.log('Submitting category:', newCategory);
+    const success = await createCategory(newCategory.trim())
+    if (success) {
+      setNewCategory("")
     }
-
-    const categoryToAdd: Category = {
-      id: Date.now().toString(),
-      name: newCategory,
-    }
-
-    setCategories([...categories, categoryToAdd])
-    setNewCategory("")
-
-    toast({
-      title: "Category added",
-      description: `${categoryToAdd.name} has been added to categories`,
-    })
   }
 
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter((product) => product.id !== id))
-    toast({
-      title: "Product deleted",
-      description: "The product has been removed from the menu",
-    })
+  if (productsLoading || categoriesLoading) {
+    return <div className="container mx-auto p-4">Loading...</div>
   }
 
   return (

@@ -1,70 +1,24 @@
-"use client"
-
 import { useState } from "react"
+import { useProducts } from "@/hooks/useProducts"
+import { useCategories } from "@/hooks/useCategories"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ProductCard from "@/components/ProductCard"
 import OrderSummary from "@/components/OrderSummary"
-import type { Product, Category, OrderItem } from "@/lib/types"
+import type { OrderItem, Product } from "@/lib/types"
 import { useToast } from "@/hooks/useToast"
 import { useMobile } from "@/hooks/useMobile"
 
-// Sample data
-const sampleProducts: Product[] = [
-  {
-    id: "CFCgcPPZKCjBvak9AEL6",
-    name: "Pepperoni Pizza",
-    price: 16.99,
-    ingredients: ["Tomato", "Mozzarella", "Pepperoni"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "2",
-    name: "Margherita Pizza",
-    price: 14.99,
-    ingredients: ["Tomato", "Mozzarella", "Basil"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "3",
-    name: "Vegetarian Pizza",
-    price: 15.99,
-    ingredients: ["Tomato", "Mozzarella", "Bell Peppers", "Mushrooms", "Olives"],
-    category: "Traditional Pizzas",
-  },
-  {
-    id: "4",
-    name: "Hawaiian Pizza",
-    price: 17.99,
-    ingredients: ["Tomato", "Mozzarella", "Ham", "Pineapple"],
-    category: "Specialty Pizzas",
-  },
-  {
-    id: "5",
-    name: "BBQ Chicken Pizza",
-    price: 18.99,
-    ingredients: ["BBQ Sauce", "Mozzarella", "Chicken", "Red Onion"],
-    category: "Specialty Pizzas",
-  },
-]
-
-const sampleCategories: Category[] = [
-  {
-    id: "1",
-    name: "Traditional Pizzas",
-  },
-  {
-    id: "5H1BpOwgs7ephxCw4PHi",
-    name: "Specialty Pizzas",
-  },
-]
-
 export default function MenuPage() {
-  const [categories, setCategories] = useState<Category[]>(sampleCategories)
-  const [products, setProducts] = useState<Product[]>(sampleProducts)
+  const { products, loading: productsLoading } = useProducts()
+  const { categories, loading: categoriesLoading } = useCategories()
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const { toast } = useToast()
   const isMobile = useMobile()
+
+  if (productsLoading || categoriesLoading) {
+    return <div className="container mx-auto p-4">Loading...</div>
+  }
 
   const filteredProducts =
     selectedCategory === "all" ? products : products.filter((product) => product.category === selectedCategory)
@@ -129,8 +83,8 @@ export default function MenuPage() {
       <div className="flex-1 p-4 overflow-auto">
         <h1 className="text-3xl font-bold mb-6 text-red-700">Pizza Menu</h1>
 
-        <Tabs defaultValue="all" className="mb-6">
-          <TabsList className="mb-4">
+        <Tabs defaultValue="all" className="mb-6 w-full">
+          <TabsList className="mb-4 overflow-x-auto max-w-[95%]">
             <TabsTrigger value="all" onClick={() => setSelectedCategory("all")} className="text-lg px-4 py-2">
               All
             </TabsTrigger>
