@@ -1,0 +1,23 @@
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          description: Product name
+        price:
+          type: number
+          description: Product price
+        ingredients:
+          type: array
+          items:
+            type: string
+          description: List of ingredients
+        category:
+          type: string
+          description: Product category

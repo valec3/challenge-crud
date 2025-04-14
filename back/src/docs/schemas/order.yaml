@@ -1,0 +1,27 @@
+components:
+  schemas:
+    Order:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              price:
+                type: number
+              quantity:
+                type: integer
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+          default: pending
+        createdAt:
+          type: string
+          format: date-time
+        total:
+          type: number
