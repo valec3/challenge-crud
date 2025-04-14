@@ -13,10 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Product, Category } from "@/lib/types"
 import { useToast } from "@/hooks/useToast"
 import { PlusCircle, Trash2 } from "lucide-react"
+import { Loader } from "@/components/Loader"
 
 export default function ProductsPage() {
-  const { products, loading: productsLoading, createProduct } = useProducts()
-  const { categories, loading: categoriesLoading, createCategory } = useCategories()
+  const { products, loading: productsLoading, createProduct, deleteProduct } = useProducts()
+  const { categories, loading: categoriesLoading, createCategory, deleteCategory } = useCategories()
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: "",
     price: 0,
@@ -80,7 +81,23 @@ export default function ProductsPage() {
   }
 
   if (productsLoading || categoriesLoading) {
-    return <div className="container mx-auto p-4">Loading...</div>
+    return (
+      <div className="container mx-auto p-4">
+        <Loader />
+      </div>
+    )
+  }
+
+  const handleDeleteProduct = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      await deleteProduct(id);
+    }
+  }
+
+  const handleDeleteCategory = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      await deleteCategory(id);
+    }
   }
 
   return (

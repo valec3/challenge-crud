@@ -1,9 +1,9 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom" // Asegúrate de importar `Route` de `react-router-dom`
 import ProductsPage from "./pages/ProductsPage"
 import OrdersPage from "./pages/OrdersPage"
 import MenuPage from "./pages/MenuPage"
 import Navbar from "./components/Navbar"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom" // Asegúrate de importar `Route` de `react-router-dom`
-
+import { Toaster } from "@/components/ui/sonner"
 function App() {
   return (
     <>
@@ -15,6 +15,7 @@ function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/menu" element={<MenuPage />} />
         </Routes>
+        <Toaster position="top-right" richColors />
       </BrowserRouter>
     </>
   )

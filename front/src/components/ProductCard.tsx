@@ -14,16 +14,22 @@ export default function ProductCard({ product, onAddToOrder }: ProductCardProps)
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-red-700">{product.name}</h3>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            {product.category}
-          </Badge>
-        </div>
+      <div className="flex justify-between items-center mb-2 gap-2">
+        <h3 className="text-xl font-bold text-red-700 text-ellipsis text-nowrap overflow-hidden flex-3">
+          {product.name}
+        </h3>
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-200 !text-left text-ellipsis text-nowrap overflow-hidden flex-1"
+        >
+          {product.category}
+        </Badge>
+      </div>
+
 
         <div className="h-32 bg-red-50 rounded-md mb-3 flex items-center justify-center">
           <img
-            src={`/placeholder.svg?height=128&width=256&text=🍕`}
+            src={"https://t3.ftcdn.net/jpg/00/27/57/96/360_F_27579652_tM7V4fZBBw8RLmZo0Bi8WhtO2EosTRFD.jpg"}
             alt={product.name}
             className="h-full w-full object-cover rounded-md"
           />

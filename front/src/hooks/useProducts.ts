@@ -44,6 +44,26 @@ export function useProducts() {
         }
     };
 
+    const deleteProduct = async (id: string) => {
+        try {
+            await productService.deleteProduct(id);
+            setProducts(prev => prev.filter(product => product.id !== id));
+            toast({
+                title: "Success",
+                description: "Product deleted successfully",
+            });
+            return true;
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete product",
+                variant: "destructive",
+            });
+            return false;
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -52,6 +72,7 @@ export function useProducts() {
         products,
         loading,
         createProduct,
+        deleteProduct,
         refreshProducts: fetchProducts
     };
 }

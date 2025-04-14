@@ -7,17 +7,24 @@ import OrderSummary from "@/components/OrderSummary"
 import type { OrderItem, Product } from "@/lib/types"
 import { useToast } from "@/hooks/useToast"
 import { useMobile } from "@/hooks/useMobile"
+import { useOrders } from "@/hooks/useOrders"
+import { Loader } from "@/components/Loader"
 
 export default function MenuPage() {
   const { products, loading: productsLoading } = useProducts()
   const { categories, loading: categoriesLoading } = useCategories()
+  const { createOrder } = useOrders()
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const { toast } = useToast()
   const isMobile = useMobile()
 
   if (productsLoading || categoriesLoading) {
-    return <div className="container mx-auto p-4">Loading...</div>
+    return (
+      <div className="container mx-auto p-4">
+        <Loader />
+      </div>
+    )
   }
 
   const filteredProducts =
@@ -54,7 +61,7 @@ export default function MenuPage() {
     })
   }
 
-  const confirmOrder = () => {
+  const confirmOrder = async () => {
     if (orderItems.length === 0) {
       toast({
         title: "Empty order",
@@ -65,17 +72,21 @@ export default function MenuPage() {
       return
     }
 
-    const total = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
-    const orderSummary = orderItems.map((item) => `${item.quantity}x ${item.name}`).join(", ")
+    const success = await createOrder(orderItems)
 
-    toast({
-      title: "Order confirmed!",
-      description: `Your order has been confirmed. Total: $${total.toFixed(2)}. Items: ${orderSummary}`,
-      duration: 5000,
-    })
+    if (success) {
+      const total = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+      const orderSummary = orderItems.map((item) => `${item.quantity}x ${item.name}`).join(", ")
 
-    // Reset order
-    setOrderItems([])
+      toast({
+        title: "Order confirmed!",
+        description: `Your order has been confirmed. Total: $${total.toFixed(2)}. Items: ${orderSummary}`,
+        duration: 5000,
+      })
+
+      // Reset order
+      setOrderItems([])
+    }
   }
 
   return (
@@ -84,7 +95,7 @@ export default function MenuPage() {
         <h1 className="text-3xl font-bold mb-6 text-red-700">Pizza Menu</h1>
 
         <Tabs defaultValue="all" className="mb-6 w-full">
-          <TabsList className="mb-4 overflow-x-auto max-w-[95%]">
+          <TabsList className="mb-4 overflow-x-auto max-w-[95%] px-4 w-full">
             <TabsTrigger value="all" onClick={() => setSelectedCategory("all")} className="text-lg px-4 py-2">
               All
             </TabsTrigger>
@@ -101,7 +112,7 @@ export default function MenuPage() {
           </TabsList>
 
           <TabsContent value={selectedCategory} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${isMobile ? "pb-96" : ""}`}>
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} onAddToOrder={() => addToOrder(product)} />
               ))}
@@ -110,10 +121,21 @@ export default function MenuPage() {
         </Tabs>
       </div>
 
-      {/* Order summary - right side on desktop, bottom on mobile */}
-      <div className={`${isMobile ? "h-auto" : "w-96"} bg-white border-l border-gray-200 shadow-lg`}>
-        <OrderSummary orderItems={orderItems} setOrderItems={setOrderItems} onConfirmOrder={confirmOrder} />
-      </div>
+      {isMobile ? (
+        <>
+          {orderItems.length > 0 && (
+            <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-gray-200 shadow-lg max-h-[60vh] overflow-auto">
+              <OrderSummary orderItems={orderItems} setOrderItems={setOrderItems} onConfirmOrder={confirmOrder} />
+            </div>
+          )}
+          {/* Add padding at the bottom on mobile to account for the fixed order summary */}
+          {orderItems.length > 0 && <div className="h-[200px]"></div>}
+        </>
+      ) : (
+        <div className="w-96 bg-white border-l border-gray-200 shadow-lg">
+          <OrderSummary orderItems={orderItems} setOrderItems={setOrderItems} onConfirmOrder={confirmOrder} />
+        </div>
+      )}
     </div>
   )
 }

@@ -45,6 +45,26 @@ export function useCategories() {
         }
     };
 
+    const deleteCategory = async (id: string) => {
+        try {
+            await categoryService.deleteCategory(id);
+            setCategories(prev => prev.filter(category => category.id !== id));
+            toast({
+                title: "Success",
+                description: "Category deleted successfully",
+            });
+            return true;
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete category",
+                variant: "destructive",
+            });
+            return false;
+        }
+    };
+
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -53,6 +73,7 @@ export function useCategories() {
         categories,
         loading,
         createCategory,
+        deleteCategory,
         refreshCategories: fetchCategories
     };
 }

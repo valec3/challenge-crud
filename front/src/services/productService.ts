@@ -25,5 +25,10 @@ export const productService = {
     async getProductsByCategory(categoryId: string) {
         const response = await api.get(`/products/category/${categoryId}`);
         return response.data;
-    }
+    },
+
+    async deleteProduct(id: string) {
+        const response = await api.delete(`/products/${id}`);
+        return response.data;
+    },
 };

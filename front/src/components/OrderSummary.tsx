@@ -38,7 +38,7 @@ export default function OrderSummary({ orderItems, setOrderItems, onConfirmOrder
         </h2>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 max-h-[70vh]">
         {orderItems.length === 0 ? (
           <div className="text-center py-8 text-gray-500">Your order is empty. Add some delicious pizzas!</div>
         ) : (
